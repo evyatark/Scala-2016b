@@ -21,39 +21,33 @@ class HistoricTemperatureService {
       yearFromStr : String,
       yearToStr : String) : String = {
     
-    val month = monthStr.toInt
-    val yearFrom = yearFromStr.toInt
-    val yearTo = yearToStr.toInt
-    
-    // calc average of month for each year
-    val averagesList : Seq[(Int,Double)] =
-    for (year <- (yearFrom to yearTo) ) yield {
-//      val x = dao.findByStationIdAndMonthAndYear(stationId, month, year)
-//      logger.info ( s"retrieved ${x.size()} items for $month $year");
-      val allMonth : List[HistoricalData] = findDataForStation(stationId, month, year) ;
-      val list : List[Double] = allMonth
-              .filter(w => w.month == month)
-              .filter(w => w.year == year)
-          .flatMap(w => toDouble(w.maxTemperature))
-      (year, list.sum / list.size)        
-    }
+
     // return graph of the averages over the years
     
     
         // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +
-    averagesList.map ( x => s"['${x._1}', ${x._2}]" ).mkString(",") +
-//    "['1930', 31.0]," +
-//    "['1931', 31.4]," +
-//    "['1932', 32.0]," +
-//    "['1933', 32.5]," +
-//    "['1934', 33.0]," +
-//    "['1935', 34.0]" +
+    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
+    "['1930', 31.0]," +
+    "['1931', 31.4]," +
+    "['1932', 32.0]," +
+    "['1933', 32.5]," +
+    "['1934', 33.0]," +
+    "['1935', 34.0]" +
     // ...
     "]"
 
 
   }
+  
+    
+  def monthByName(month : String) : String = {
+    Map("07"->"July", "08"->"August", "09"->"September").getOrElse(month, month);
+  }
+
+  
+  
+  
+  
   
   def tupleContains(station : String) : List[String] = {
     val alt = List(List("7150","7151"),List("4640","4642"),List("5360","5358"),List("1540","1545","1546"));
@@ -74,19 +68,6 @@ class HistoricTemperatureService {
   }
 
   
-  def toDouble(x : String) : Option[Double] = {
-    try {
-      Some(x.toDouble)
-    }
-    catch {
-      case _ => None 
-    }
-  }
-
-  
-  def monthByName(month : String) : String = {
-    Map("07"->"July", "08"->"August", "09"->"September").getOrElse(month, month);
-  }
   
   def stationByName(stationId : String) : String = {
     Map("7150"->"בית ג'מל", "1540"->"עין החורש",

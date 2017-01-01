@@ -41,37 +41,18 @@ class RealTimeTemperature {
     "]"
   }
 
-  def minMaxTemperature_old(stationId : String): String = {
 
-    val all: List[RealTimeData] = asScalaBuffer(dao.findByStationId(stationId)).toList
-    val allData = all.map { x => (x.date.split("-")(0), x.minTemperature, x.maxTemperature) }
-    val maxMinPerDay =
-      for (i <- (1 to 30)) yield {
-        (i, allData.filter(t => t._1.toInt == i).map(t => t._3.toDouble).max, allData.filter(t => t._1.toInt == i).map(t => t._2.toDouble).min)
-      }
-    //val xx = all.map { x => s"[${x.date.split("-")(0)},${x.minTemperature},${x.maxTemperature}]" }
-    val xx = maxMinPerDay.map { x => s"[${x._1},${x._3},${x._2}]" }
-    logger.info(xx.mkString(","))
-    "[ ['Date', 'Min Temperature', 'Max Temperature']," + xx.mkString(",") + "]"
-    //"[ [\"Date\", \"Min Temperature\", \"Max Temperature\"]," + xx.mkString(",") + "]"
-
-  }
-  
   
   def minMaxTemperature(stationId : String, month : String, year : String): String = {
-    logger.info("started");
-    val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
-    logger.info("retrieved " + all.size + " items");
-    val allData = all.map { x => (x.date.split("-")(0), x.minTemperature, x.maxTemperature) }
-    val maxMinPerDay =
-      for (i <- (1 to 30)) yield {
-        logger.info("working on day " + i);
-        val mmax = allData.filter(t => t._1.toInt == i).map(t => toDouble(t._3)).max
-        val mmin = allData.filter(t => t._1.toInt == i).map(t => toDouble(t._2)).min
-        (i, mmax, mmin)
-      }
-    //val xx = all.map { x => s"[${x.date.split("-")(0)},${x.minTemperature},${x.maxTemperature}]" }
-    val xx = maxMinPerDay.map { x => s"[${x._1},${x._3.getOrElse(0.0)},${x._2.getOrElse(0.0)}]" }
+
+    // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
+
+    val xx = List(
+        "[01-06-2016,35.0,24.0]",
+        "[02-06-2016,34.0,23.0]",
+        "[03-06-2016,35.0,24.0]",
+        "[04-06-2016,34.0,23.0]"
+        )
     logger.info(xx.mkString(","))
     "[ ['Date', 'Min Temperature', 'Max Temperature']," + xx.mkString(",") + "]"
     //"[ [\"Date\", \"Min Temperature\", \"Max Temperature\"]," + xx.mkString(",") + "]"
@@ -79,13 +60,6 @@ class RealTimeTemperature {
   }
   
 
-  def toDouble(x : String) : Option[Double] = {
-    try {
-      Some(x.toDouble)
-    }
-    catch {
-      case _ => None 
-    }
-  }
+  
 
 }
