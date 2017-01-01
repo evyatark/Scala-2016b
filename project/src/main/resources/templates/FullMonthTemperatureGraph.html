@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Full Month Temperature - Scala Weather Workshop</title>
+    
+    <script th:inline="javascript">
+/*<![CDATA[*/
+
+    var month = [[${month}]];
+    var year = [[${year}]];
+    var data = [[${data}]];
+
+/*]]>*/
+	</script>
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+	  
+      function drawChart() {
+        var chartData = google.visualization.arrayToDataTable(eval(data));
+
+        var options = {
+          title: 'June 2016',
+          //curveType: 'function',
+		  hAxis:{title:'day'},
+		  vAxis:{title:'temperature'},
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(chartData, options);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+  </body>
+</html>
