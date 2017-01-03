@@ -36,4 +36,14 @@ class UIController {
     "OneDayTemperatureGraph"
   }
 
+  
+  
+  @RequestMapping(value = Array("hello"), method = Array(RequestMethod.GET))
+  def hello(model : Model):  String = {
+    // add value of "name" to Model ("$name" is used in the template)
+    model.addAttribute("name", "Evyatar")
+    
+    // return the name of the view:
+    "Hello"
+  }
 }
