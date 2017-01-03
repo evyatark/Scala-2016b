@@ -11,6 +11,10 @@ import scala.io.Source
 import javax.annotation.PostConstruct
 import javax.persistence.Entity
 import scala.collection.JavaConversions
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Success
+import scala.util.Failure
 
 
 @Component
@@ -24,11 +28,18 @@ class HistoricReader {
   def init() = {
       logger.info("init - read file and save to DB")
       //readDataFromFile("data/Jamal 7151 historic temp 2000 2015.csv")
-      readDataFromFile("data/historic/ims_data_max_min_7150_1930_1960.csv");
-      readDataFromFile("data/historic/ims_data_max_min_7150_1960_1990.csv");
-      readDataFromFile("data/historic/ims_data_max_min_7150_1990_2007.csv");
-      readDataFromFile("data/historic/ims_data_max_min_7151_2004_2015.csv");
+      val f = Future {
+        readDataFromFile("data/historic/ims_data_max_min_7150_1930_1960.csv");
+        readDataFromFile("data/historic/ims_data_max_min_7150_1960_1990.csv");
+        readDataFromFile("data/historic/ims_data_max_min_7150_1990_2007.csv");
+        readDataFromFile("data/historic/ims_data_max_min_7151_2004_2015.csv");
+        true
+      }
       logger.info("done");
+      f.onComplete { 
+        case Success(value) => logger.warn(s"finished saving historic data to DB (status=$value)")
+        case Failure(e) => e.printStackTrace
+      }      
   }
   
   def readDataFromFile(fileName: String) = {

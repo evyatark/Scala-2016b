@@ -10,6 +10,10 @@ import scala.collection.immutable.HashMap
 import javax.annotation.PostConstruct
 import javax.persistence.Entity
 import scala.collection.JavaConversions
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Success
+import scala.util.Failure
 
 @Component
 class RealTimeReader {
@@ -22,9 +26,19 @@ class RealTimeReader {
   @PostConstruct
     def init() = {
       logger.info("init - read file and save to DB")
-      readDataFromFile("data/jamal_june_2016_all.csv")
-      
-      logger.info("done");
+      //readDataFromFile("data/jamal_june_2016_all.csv")
+      val f = Future {
+        readDataFromFile("data/realTime/Jamal_2014.csv")
+        readDataFromFile("data/realTime/Jamal_2015.csv")
+        readDataFromFile("data/realTime/Jamal_2016.csv")
+        readDataFromFile("data/realTime/Avne_2016.csv")
+        readDataFromFile("data/realTime/Dagan_2016.csv")
+        readDataFromFile("data/realTime/Elat_2016.csv")
+        true }
+      f.onComplete { 
+        case Success(value) => logger.warn(s"finished saving rt to DB (status=$value)")
+        case Failure(e) => e.printStackTrace
+      }      
     }
 
   def readDataFromFile(fileName: String) = {
@@ -96,7 +110,9 @@ class RealTimeReader {
   }
 
   
-  val mapStationNames = HashMap ("בית ג'מל" -> "7151" ,
+  val mapStationNames = HashMap (
+"בית ג'מל" -> "7151" ,
+"אילת" -> "16" ,      
   "אפק" -> "01" ,
 "אריאל מכללה" -> "02" ,
 "אשדוד נמל" -> "03" ,
@@ -112,7 +128,6 @@ class RealTimeReader {
 "דייר חנא" -> "13" ,
 "דורות" -> "14" ,
 "חוות עדן" -> "15" ,
-"אילת" -> "16" ,
 "אילון" -> "17" ,
 "אשחר" -> "18" ,
 "גלעד" -> "19" ,
