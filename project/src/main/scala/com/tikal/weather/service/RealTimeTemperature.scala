@@ -48,10 +48,10 @@ class RealTimeTemperature {
     // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
 
     val xx = List(
-        "[01-06-2016,35.0,24.0]",
-        "[02-06-2016,34.0,23.0]",
-        "[03-06-2016,35.0,24.0]",
-        "[04-06-2016,34.0,23.0]"
+        "['01-06-2016',35.0,24.0]",
+        "['02-06-2016',34.0,23.0]",
+        "['03-06-2016',35.0,24.0]",
+        "['04-06-2016',34.0,23.0]"
         )
     logger.info(xx.mkString(","))
     "[ ['Date', 'Min Temperature', 'Max Temperature']," + xx.mkString(",") + "]"
