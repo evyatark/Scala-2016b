@@ -21,7 +21,7 @@ class HistoricController {
   @RequestMapping(value = Array("monthlyAverage"), method = Array(RequestMethod.GET))
   def monthlyAverage(model : Model,
       @RequestParam(value="month", defaultValue="07") month : String,
-      @RequestParam(value="stationId", defaultValue="7151") stationId : String,
+      @RequestParam(value="stationId", defaultValue="7150") stationId : String,
       @RequestParam(value="yearFrom", defaultValue="1930") yearFrom : String
   ):  String = {
     val yearTo = "2016" ;

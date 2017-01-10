@@ -26,21 +26,33 @@ class RealTimeTemperature {
    */
   def temperatureForOneDay(stationId : String, day : String, month : String, year : String): String = {
     // one option is to retrieve all data for that month:
-    //val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
+    val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
     // and work from there
     
-    // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
+    val filterdAll = all.filter { singleDay => (day+"-"+month+"-"+year)==singleDay.date }
+    val outputString = filterdAll.map(dataToString)
+    val sizeOfData = filterdAll.size;
+    logger.debug(s"data, month=$month, year=$year, #ofData=$sizeOfData")
+    
     "[ ['Time', 'Temperature']," +
-    "['00:10', 21.0]," +
-    "['00:20', 21.4]," +
-    "['00:30', 22.0]," +
-    "['00:40', 22.5]," +
-    "['00:50', 23.0]," +
-    "['01:00', 24.0]" +
-    // ...
+    outputString.mkString(",") +
     "]"
+    
+//    // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
+//    "[ ['Time', 'Temperature']," +
+//    "['00:10', 21.0]," +
+//    "['00:20', 21.4]," +
+//    "['00:30', 22.0]," +
+//    "['00:40', 22.5]," +
+//    "['00:50', 23.0]," +
+//    "['01:00', 24.0]" +
+//    // ...
+//    "]"
   }
 
+  def dataToString(data : RealTimeData) : String = {
+    "['"+data.time + "', " + data.temperature + "]"
+  }
 
   
   def minMaxTemperature(stationId : String, month : String, year : String): String = {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.beans.factory.annotation.Autowired
 import com.tikal.weather.service.RealTimeTemperature
+import org.hibernate.metamodel.source.annotations.xml.mocker.EntityMappingsMocker.Default
 
 
 @Controller
@@ -27,11 +28,11 @@ class UIController {
 
 
   @RequestMapping(value = Array("oneDay"), method = Array(RequestMethod.GET))
-  def oneDay(model : Model):  String = {
-    model.addAttribute("day", "01")
+  def oneDay(model : Model ,@RequestParam(defaultValue="01") day : String):  String = {
+    model.addAttribute("day", day)
     model.addAttribute("month", "06")
     model.addAttribute("year", "2016")
-    val data = rtTemperatureService.temperatureForOneDay("7151", "01", "06", "2016") ;
+    val data = rtTemperatureService.temperatureForOneDay("7151", day, "06", "2016") ;
     model.addAttribute("data", data);
     "OneDayTemperatureGraph"
   }

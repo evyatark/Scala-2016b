@@ -14,29 +14,65 @@ class HistoricTemperatureService {
   private val logger: Logger = LoggerFactory.getLogger(classOf[HistoricTemperatureService])
 
   @Autowired
-  val dao : HistoricalDataDao = null;
+  val hisDao : HistoricalDataDao = null;
   
   def monthlyAverage(stationId : String,
       monthStr : String,
       yearFromStr : String,
       yearToStr : String) : String = {
     
-
+		  val format = new java.text.SimpleDateFormat("MM-dd-yyyy")
+		  val fromDate = format.parse("01-01-" + yearFromStr);
+		  val toDate = format.parse("01-01-" + yearToStr);
+    val fromLong = new java.util.Date(yearFromStr.toInt,1,1).getTime;
+    val ttoLong = new java.util.Date(yearToStr.toInt,1,1).getTime
+    logger.debug(s"Data Params : $yearFromStr To $yearToStr In Str : $fromLong,$ttoLong" )
+    
+    val allTest : java.util.ArrayList[HistoricalData] = hisDao.findByStationIdAndMonthAndYear(stationId,7,1930)
+    logger.debug("Data allTest Length : " + allTest.size())
+      val all: java.util.ArrayList[HistoricalData] = hisDao.findByStationIdAndDateTimeBetween(stationId,fromDate.getTime,toDate.getTime)
+      logger.debug("Data Length : " + all.size())
     // return graph of the averages over the years
-    
-    
-        // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
-    "['1930', 31.0]," +
-    "['1931', 31.4]," +
-    "['1932', 32.0]," +
-    "['1933', 32.5]," +
-    "['1934', 33.0]," +
-    "['1935', 34.0]" +
-    // ...
+    val dataTuples = all.groupBy { singleDay => singleDay.year }
+                        .map(averagePerYear).toList.sortWith((lt1,lt2) => lt1._1<lt2._1)
+                        
+                   
+    logger.debug(dataTuples.map(historicalDataToString).mkString(","));
+    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature','Min']," +    
+    dataTuples.map(historicalDataToString).mkString(",") +
     "]"
+//        // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
+//    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
+//    "['1930', 31.0]," +
+//    "['1931', 31.4]," +
+//    "['1932', 32.0]," +
+//    "['1933', 32.5]," +
+//    "['1934', 33.0]," +
+//    "['1935', 34.0]" +
+//    // ...
+//    "]"
 
 
+  }
+  def averagePerYear(data : (Int,Seq[HistoricalData])) : (Int,Double,Double) = {
+    
+    val temperturesPerYear = data._2.map { singleDay => (numToDouble(singleDay.maxTemperature),numToDouble(singleDay.minTemperature)) }
+    val avgTem = (temperturesPerYear.flatMap(max => max._1).sum/temperturesPerYear.size,temperturesPerYear.flatMap(max => max._2).sum/temperturesPerYear.size)
+    (data._1,avgTem._1,avgTem._2)
+  }
+
+  def numToDouble(num : String) : Option[Double] = {
+    try
+    {
+      Some(num.toDouble)
+    } catch {
+      case _ => None
+    }
+  }
+
+  
+  def historicalDataToString(data : (Int,Double,Double)) : String = {
+    "['"+data._1+"', "+data._2+", "+data._3+"]"
   }
   
     
@@ -63,7 +99,7 @@ class HistoricTemperatureService {
   def findDataForStation(stationId : String, month : Int, year: Int) : List[HistoricalData] = {
     val stations : List[String] = tupleContains(stationId) ;
     stations.
-      map{stationId => dao.findByStationIdAndMonthAndYear(stationId, month, year)}.
+      map{stationId => hisDao.findByStationIdAndMonthAndYear(stationId, month, year)}.
       flatMap{arrayList => asScalaBuffer(arrayList).toList}
   }
 
