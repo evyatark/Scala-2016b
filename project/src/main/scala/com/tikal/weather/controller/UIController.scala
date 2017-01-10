@@ -27,11 +27,11 @@ class UIController {
 
 
   @RequestMapping(value = Array("oneDay"), method = Array(RequestMethod.GET))
-  def oneDay(model : Model):  String = {
-    model.addAttribute("day", "01")
-    model.addAttribute("month", "06")
-    model.addAttribute("year", "2016")
-    val data = rtTemperatureService.temperatureForOneDay("7151", "01", "06", "2016") ;
+  def oneDay(model : Model, @RequestParam day:Int, @RequestParam month:Int, @RequestParam year:Int):  String = {
+    model.addAttribute("day", day.toString())
+    model.addAttribute("month", month.toString)
+    model.addAttribute("year", year.toString)
+    val data = rtTemperatureService.temperatureForOneDay("7151", day.toString, month.toString, year.toString) ;
     model.addAttribute("data", data);
     "OneDayTemperatureGraph"
   }

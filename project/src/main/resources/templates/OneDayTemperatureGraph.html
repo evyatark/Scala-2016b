@@ -26,10 +26,10 @@
         var chartData = google.visualization.arrayToDataTable(eval(data));
 
         var options = {
-          title: '+++ add title here +++',
+          title: `+++ temperature for ${day}-${month}-${year} +++`,
           //curveType: 'function',
-		  hAxis:{title:'!!! add title here !!!'},
-		  vAxis:{title:'??? add title here ???'},
+		  hAxis:{title:'Time of day'},
+		  vAxis:{title:'temp (C)'},
           legend: { position: 'bottom' }
         };
 

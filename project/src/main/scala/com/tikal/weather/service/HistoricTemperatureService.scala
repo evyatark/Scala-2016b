@@ -21,27 +21,31 @@ class HistoricTemperatureService {
       yearFromStr : String,
       yearToStr : String) : String = {
     
-
+    val month = monthStr.toInt
     // return graph of the averages over the years
-    
-    
+    val pairs = (yearFromStr.toInt to yearToStr.toInt).map({y=>Tuple2(y, average(y, month, stationId))}).filter(!_._2.isEmpty).map(t=>{"['"+t._1+"',"+t._2.get+"],"})
+    println(pairs)
         // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
-    "['1930', 31.0]," +
-    "['1931', 31.4]," +
-    "['1932', 32.0]," +
-    "['1933', 32.5]," +
-    "['1934', 33.0]," +
-    "['1935', 34.0]" +
+//    "['1930', 31.0]," +
+//    "['1931', 31.4]," +
+//    "['1932', 32.0]," +
+//    "['1933', 32.5]," +
+//    "['1934', 33.0]," +
+//    "['1935', 34.0]" +
     // ...
+
+    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
+    pairs.reduce(_+_) +
     "]"
-
-
   }
   
-    
+  val MONTHS = List("January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December")  
   def monthByName(month : String) : String = {
-    Map("07"->"July", "08"->"August", "09"->"September").getOrElse(month, month);
+    try {
+      MONTHS(month.toInt - 1)
+    } catch {
+       case e: Exception => month
+    }
   }
 
   
@@ -74,5 +78,14 @@ class HistoricTemperatureService {
         "4640" -> "צפת",
         //"" -> "",
         "5360"->"תבור").getOrElse(stationId, stationId);
+  }
+
+  def average(year: Int, month: Int, stationId: String): Option[Double] = {
+    val values = findDataForStation(stationId, month, year).filter(x=>x.maxTemperature!="-")
+    if (values.length > 0) {
+      Some(values.map({ x => x.maxTemperature.toDouble}).reduceLeft(_+_) / values.length)
+    } else {
+      None
+    }
   }
 }

@@ -1,13 +1,13 @@
 package com.tikal.weather.service
 
-import org.springframework.stereotype.Service
-//import com.tikal.weather.model.RealTimeData
-//import com.tikal.weather.dao.RealTimeDataDao
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import scala.collection.JavaConversions.asScalaBuffer
-import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.stereotype.Service
+
 import com.tikal.weather.dao.RealTimeDataDao
-import com.tikal.weather.model.RealTimeData
+
+import javax.persistence.Entity
 
 @Service
 class RealTimeTemperature {
@@ -28,17 +28,23 @@ class RealTimeTemperature {
     // one option is to retrieve all data for that month:
     //val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
     // and work from there
-    
+
+    val d = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt).
+      filter(rtd => {rtd.date.split("-")(0).toInt==day.toInt}).
+      map(rtd => {"['"+rtd.time+"', " + rtd.temperature + "],"}).
+      reduceLeft((a:String,b:String)=>a+b)
+//    println(d)
+    "[ ['Time', 'Temperature']," + d + "]"
     // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Time', 'Temperature']," +
-    "['00:10', 21.0]," +
-    "['00:20', 21.4]," +
-    "['00:30', 22.0]," +
-    "['00:40', 22.5]," +
-    "['00:50', 23.0]," +
-    "['01:00', 24.0]" +
-    // ...
-    "]"
+//    "[ ['Time', 'Temperature']," +
+//    "['00:10', 21.0]," +
+//    "['00:20', 21.4]," +
+//    "['00:30', 22.0]," +
+//    "['00:40', 22.5]," +
+//    "['00:50', -23.0]," +
+//    "['01:00', 24.0]" +
+//    // ...
+//    "]"
   }
 
 
