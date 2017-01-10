@@ -9,6 +9,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.tikal.weather.model.HistoricalData
 import java.util.ArrayList
 
+
 @Service
 class HistoricTemperatureService {
   private val logger: Logger = LoggerFactory.getLogger(classOf[HistoricTemperatureService])
@@ -23,22 +24,52 @@ class HistoricTemperatureService {
     
 
     // return graph of the averages over the years
+    val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
+ 
+        val yearFrom = format.parse(yearFromStr+ "-01-01");
+        val yearTo = format.parse(yearToStr+"2013-01-01");
+
+
+   var allBetweenYears = dao.findByStationIdAndDateTimeBetween(stationId, yearFrom.getTime, yearTo.getTime);
+   var filteredData =  allBetweenYears.filter {hd=>filterDataForMonth(hd,monthStr)}
+   var groupedData = filteredData.groupBy { x => x.getMonth()+"-"+x.getYear() };
+   var groupedMappedData = groupedData.map(x=>(x._1,x._2.map { y => y.getMaxTemperature().toFloat }))
+   var finalData = groupedMappedData.map(x=>(x._1.split("-")(1),x._2.sum/x._2.length))
+    println("stop");
+   
+    val builder = StringBuilder.newBuilder
+    builder.append("[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature'],");
+    var finalDataSorted = finalData.toSeq.sortBy(_._1)
+    for(x<-finalDataSorted){
+      builder.append("['").append(x._1).append("', ").append(x._2).append("],");
+    }
+    builder.append("]");
     
-    
-        // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
-    "['1930', 31.0]," +
-    "['1931', 31.4]," +
-    "['1932', 32.0]," +
-    "['1933', 32.5]," +
-    "['1934', 33.0]," +
-    "['1935', 34.0]" +
-    // ...
-    "]"
+        var result = builder.toString();
+    result = result.patch(result.lastIndexOf(','),"", 1)
+
+    println(result);
+     result;
+//        // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
+//    "[ ['Year', '" + monthByName(monthStr) + " Average Max Temperature']," +    
+//    "['1930', 31.0]," +
+//    "['1931', 31.4]," +
+//    "['1932', 32.0]," +
+//    "['1933', 32.5]," +
+//    "['1934', 33.0]," +
+//    "['1935', 34.0]" +
+//    // ...
+//    "]"
 
 
   }
   
+    def filterDataForMonth(hd : HistoricalData ,  month : String):Boolean ={
+    if(hd.getDate().split("-")(1).equals(month) && !hd.maxTemperature.equals("-"))
+      true
+    else
+      false
+  }
     
   def monthByName(month : String) : String = {
     Map("07"->"July", "08"->"August", "09"->"September").getOrElse(month, month);

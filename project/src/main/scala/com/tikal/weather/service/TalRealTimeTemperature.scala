@@ -26,21 +26,41 @@ class RealTimeTemperature {
    */
   def temperatureForOneDay(stationId : String, day : String, month : String, year : String): String = {
     // one option is to retrieve all data for that month:
-    //val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
+    val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt);
     // and work from there
+    val filteredDataForDay = all.filter {rt=> filterDataForOneDay(rt,day) }
+     
+    val builder = StringBuilder.newBuilder
+    builder.append("[ ['Time', 'Temperature'],");
+    for(x<-filteredDataForDay){
+      builder.append("['").append(x.getTime()).append("', ").append(x.getTemperature()).append("],");
+    }
+    builder.append("]");
     
+    var result = builder.toString();
+    result = result.patch(result.lastIndexOf(','),"", 1)
+
+    println(result);
+     result;
     // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Time', 'Temperature']," +
-    "['00:10', 21.0]," +
-    "['00:20', 21.4]," +
-    "['00:30', 22.0]," +
-    "['00:40', 22.5]," +
-    "['00:50', 23.0]," +
-    "['01:00', 24.0]" +
-    // ...
-    "]"
+//    "[ ['Time', 'Temperature']," +
+//    "['00:10', 21.0]," +
+//    "['00:20', 21.4]," +
+//    "['00:30', 22.0]," +
+//    "['00:40', 22.5]," +
+//    "['00:50', 23.0]," +
+//    "['01:00', 24.0]" +
+//    // ...
+//    "]"
   }
 
+  
+  def filterDataForOneDay(rt : RealTimeData ,  day : String):Boolean ={
+    if(rt.getDate().split("-")(0).equals(day) && !rt.getTemperature().equals("-"))
+      true
+    else
+      false
+  }
 
   
   def minMaxTemperature(stationId : String, month : String, year : String): String = {
