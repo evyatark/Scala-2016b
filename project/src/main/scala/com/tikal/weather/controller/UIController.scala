@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.beans.factory.annotation.Autowired
 import com.tikal.weather.service.RealTimeTemperature
+import com.tikal.weather.model.Stations
 
 
 @Controller
@@ -18,20 +19,31 @@ class UIController {
   val rtTemperatureService : RealTimeTemperature = null ;
 
   @RequestMapping(value = Array("fullMonth"), method = Array(RequestMethod.GET))
-  def ui(model : Model):  String = {
-    model.addAttribute("month", "June")
-    model.addAttribute("year", "2016")
-    model.addAttribute("data", rtTemperatureService.minMaxTemperature("7151", "06", "2016"));
+  def ui(model : Model,
+         @RequestParam(value = "month", required=false, defaultValue="06") month: String,
+         @RequestParam(value = "year", required=false, defaultValue="2016") year: String,
+         @RequestParam(value = "station_id", required=false, defaultValue="7151") stationId: String
+  ):  String = {
+    model.addAttribute("month", month)
+    model.addAttribute("year", year)
+    model.addAttribute("data", rtTemperatureService.minMaxTemperature(stationId, month, year));
     "FullMonthTemperatureGraph"
   }
 
 
   @RequestMapping(value = Array("oneDay"), method = Array(RequestMethod.GET))
-  def oneDay(model : Model):  String = {
-    model.addAttribute("day", "01")
-    model.addAttribute("month", "06")
-    model.addAttribute("year", "2016")
-    val data = rtTemperatureService.temperatureForOneDay("7151", "01", "06", "2016") ;
+  def oneDay(model : Model,
+            @RequestParam(value = "day", required=false, defaultValue="01") day: String,
+            @RequestParam(value = "month", required=false, defaultValue="06") month: String,
+            @RequestParam(value = "year", required=false, defaultValue="2016") year: String,
+            @RequestParam(value = "station_id", required=false, defaultValue="7151") stationId: String
+  ) :  String = {
+    model.addAttribute("day", day)
+    model.addAttribute("month", month)
+    model.addAttribute("year", year)
+    val stationName = Stations.idToStation(stationId)
+    model.addAttribute("stationName", stationName)
+    val data = rtTemperatureService.temperatureForOneDay(stationId, day, month, year) ;
     model.addAttribute("data", data);
     "OneDayTemperatureGraph"
   }
