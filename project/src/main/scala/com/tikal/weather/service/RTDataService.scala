@@ -43,8 +43,11 @@ class RTDataService {
   def findByStationAndDateRange(stationId : String, from : String, to : String) : List[RealTimeData] = {
     val fromLong = dateAsLong(from)
     val toLong = dateAsLong(to)
-    val x = dao.findByStationIdAndDateTimeBetween(stationId, fromLong-1, toLong)
-    asScalaBuffer(x).toList
+    findByStasionAndDateRangeEpoch(stationId, fromLong, toLong)
+  }
+
+  def findByStasionAndDateRangeEpoch(stationId : String, from : Long, to : Long) : List[RealTimeData] = {
+    asScalaBuffer(dao.findByStationIdAndDateTimeBetween(stationId, from, to)).toList
   }
   
   def dateAsLong(date: String): Long = {
