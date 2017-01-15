@@ -8,6 +8,13 @@ import scala.collection.JavaConversions.asScalaBuffer
 import org.slf4j.{Logger, LoggerFactory}
 import com.tikal.weather.dao.RealTimeDataDao
 import com.tikal.weather.model.RealTimeData
+import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.YearMonth
+import scala.util.Try
 
 @Service
 class RealTimeTemperature {
