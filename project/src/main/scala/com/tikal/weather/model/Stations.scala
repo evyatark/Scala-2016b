@@ -107,5 +107,7 @@ object Stations {
 "תבור כדורי" -> "5358",
 "תל-אביב חוף" -> "2410"
     );
-    
+ val idToStation = mapStationNames.map(_.swap)
+ val idToHistoricStation = mapHistoricStationNames.map(_.swap)
+
 }
