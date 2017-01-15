@@ -27,27 +27,34 @@ class RealTimeTemperature {
   @Autowired
   val rtService : RTDataService = null ;
 
-  
+
   /**
    * Implement this service correctly!
    */
   def temperatureForOneDay(stationId : String, day : String, month : String, year : String): String = {
-    // one option is to retrieve all data for that month:
-    //val all: List[RealTimeData] = rtService.findByStationAndMonthYear(stationId, month.toInt, year.toInt)
-    // and work from there
-    
     // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-    "[ ['Time', 'Temperature']," +
-    "['00:10', 21.0]," +
-    "['00:20', 21.4]," +
-    "['00:30', 22.0]," +
-    "['00:40', 22.5]," +
-    "['00:50', 23.0]," +
-    "['01:00', 24.0]" +
-    // ...
-    "]"
+    // "[ ['Time', 'Temperature'], ['00:10', 21.0], ... ]
+    val dayStats = statsForOneDay(stationId, day, month, year)
+    val dataStr = dayStats.map({ x => s"['${x.time}', ${x.minTemperature}, ${x.maxTemperature}]"}).mkString(", ")
+
+    "[ ['Time', 'Min Temperature', 'Max Temperature']," + dataStr + "]"
   }
 
+  def statsForOneDay(stationId : String, day : String, month : String, year : String): List[RealTimeData] = {
+    val fromStr: String = List(month, day, year).mkString("-")
+    val formatter : DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd-yyy");
+    val fromLocDate : LocalDate = LocalDate.parse(fromStr, formatter);
+    val zoneId : ZoneId = ZoneId.systemDefault();
+    val fromEpoch = fromLocDate.atStartOfDay(zoneId).toEpochSecond() * 1000
+    val toDate = fromLocDate.plusDays(1)
+    val toEpoch = toDate.atStartOfDay(zoneId).toEpochSecond() * 1000
+    rtService.findByStasionAndDateRangeEpoch(
+                                          stationId,
+                                          fromEpoch,
+                                          toEpoch
+                                       )
+
+  }
 
   
   def minMaxTemperature(stationId : String, month : String, year : String): String = {
