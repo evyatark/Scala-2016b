@@ -9,10 +9,11 @@
     var month = [[${month}]];
     var year = [[${year}]];
     var data = [[${data}]];
+    var title = [[${month}]] + "/" + [[${year}]]
 
 /*]]>*/
 	</script>
-    
+
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});
@@ -23,7 +24,7 @@
         var chartData = google.visualization.arrayToDataTable(eval(data));
 
         var options = {
-          title: 'June 2016',
+          title: title,
           //curveType: 'function',
 		  hAxis:{title:'day'},
 		  vAxis:{title:'temperature'},
