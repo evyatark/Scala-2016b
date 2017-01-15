@@ -56,24 +56,43 @@ class RealTimeTemperature {
 
   }
 
-  
   def minMaxTemperature(stationId : String, month : String, year : String): String = {
 
     // THE RESULT OF THIS SERVICE IS A STRING THAT looks like this:
-
-    val xx = List(
+    val nDays = numOfDays(month, year)
+    val xx1 = List(
         "['01-06-2016',35.0,24.0]",
         "['02-06-2016',34.0,23.0]",
         "['03-06-2016',35.0,24.0]",
         "['04-06-2016',34.0,23.0]"
         )
+    val days = 1.to(nDays).toArray.toList
+    val dayStrs = days.map(dayToString)
+    val daysStats = dayStrs.map({d => statsForOneDay(stationId, d, month, year)})
+    val dayAvgs = daysStats.map(avgs)
+    val dateStrs = dayStrs.map(d => s"${d}-${month}-${year}")
+    val z = dateStrs.zip(dayAvgs)
+    val xx = z.map({case (date, mx) => s"['$date', ${mx(0)}, ${mx(1)}]"})
     logger.info(xx.mkString(","))
     "[ ['Date', 'Min Temperature', 'Max Temperature']," + xx.mkString(",") + "]"
-    //"[ [\"Date\", \"Min Temperature\", \"Max Temperature\"]," + xx.mkString(",") + "]"
 
   }
-  
 
-  
+  def numOfDays(month : String, year: String) : Int = {
+    val yearMonthObject = YearMonth.of(year.toInt, month.toInt);
 
+    yearMonthObject.lengthOfMonth();
+  }
+
+  def dayToString(day : Int) : String = {
+    f"$day%02d"
+  }
+
+  def avgs(data: List[RealTimeData]) : List[Double] = {
+    val tmpStrs : List[(String, String)] = data.map({x => (x.minTemperature, x.maxTemperature)})
+    val minMaxStrs = List(tmpStrs.map(_._1), tmpStrs.map(_._2))
+    val minMaxs = minMaxStrs.map({ts =>  ts.flatMap(t => Try(t.toDouble).toOption)})
+
+    minMaxs.map(ms => ms.sum / ms.length)
+  }
 }
