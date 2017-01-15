@@ -12,7 +12,7 @@
     
     // data used for the graph!!!
     var data = [[${data}]];
-
+	var title = "Graph for " + [[${day}]] + "/" + [[${month}]] + "/" + [[${year}]] + " at station " + [[${stationName}]]
 /*]]>*/
 	</script>
     
@@ -26,10 +26,9 @@
         var chartData = google.visualization.arrayToDataTable(eval(data));
 
         var options = {
-          title: '+++ add title here +++',
-          //curveType: 'function',
-		  hAxis:{title:'!!! add title here !!!'},
-		  vAxis:{title:'??? add title here ???'},
+          title: title,
+		  hAxis:{title:'time'},
+		  vAxis:{title:'degrees'},
           legend: { position: 'bottom' }
         };
 
