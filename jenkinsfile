@@ -1,0 +1,39 @@
+pipeline	{
+	agent	any
+    tools {
+        maven 'Maven 3.3.9'
+        //jdk 'jdk8'
+    }	
+	stages	{
+		stage("Checkout")	{
+			steps	{
+				sh '''
+                    echo "J E N K I N S file"
+                ''' 
+				//git	url:	'https://github.com/evyatark/Scala-2016b.git'
+			}
+		}
+		stage ('Initialize') {
+            steps {
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                    echo `pwd`
+                ''' 
+            }
+        }
+		stage ("Compile") {
+		    steps {
+		        sh 'mvn clean compile -f ./project/pom.xml'
+		    }
+		}
+		stage ("Unit Tests") {
+		    steps {
+		        sh '''
+		            cd project
+		            mvn test
+		        '''
+		    }
+		}
+    }
+}
